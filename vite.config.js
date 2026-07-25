@@ -1,6 +1,26 @@
 import { sveltekit } from '@sveltejs/kit/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import { defineConfig } from 'vite';
+import { execSync } from 'node:child_process';
+
+// Build-time version string shown in the app so you can tell which build is live.
+// In CI the commit sha arrives via the APP_VERSION build-arg (the Docker build has
+// no .git); locally it falls back to `git rev-parse`, then to "dev".
+function resolveVersion() {
+	let sha = process.env.APP_VERSION;
+	if (!sha) {
+		try {
+			sha = execSync('git rev-parse --short HEAD', { stdio: ['ignore', 'pipe', 'ignore'] })
+				.toString()
+				.trim();
+		} catch {
+			sha = 'dev';
+		}
+	}
+	const short = sha.slice(0, 7);
+	const date = new Date().toISOString().slice(0, 10);
+	return `${short} · ${date}`;
+}
 
 /** Attaches Socket.IO to Vite's HTTP server in development. */
 const socketIODev = {
@@ -41,5 +61,8 @@ export default defineConfig({
 	],
 	ssr: {
 		external: ['better-sqlite3']
+	},
+	define: {
+		__APP_VERSION__: JSON.stringify(resolveVersion())
 	}
 });

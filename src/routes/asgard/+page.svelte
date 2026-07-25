@@ -99,7 +99,7 @@
 <div class="card small muted">
 	Código de invitación: <strong style="color: var(--gold); letter-spacing: 0.15em">{data.inviteCode}</strong>
 	· <a href="/members">gestionar Ætt e invitar</a>
-	<div class="small" style="margin-top: 8px; opacity: 0.5">v {data.version}</div>
+	<div class="small" style="margin-top: 8px; opacity: 0.5">Mormorsspill · {__APP_VERSION__}</div>
 </div>
 
 <div class="actionbar">
