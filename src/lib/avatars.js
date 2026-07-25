@@ -1,4 +1,4 @@
-// Crestas de clan: glifos vikingos + runas, dibujados en SVG (ver Avatar.svelte).
+// Clan crests: viking glyphs + runes, drawn as SVG (see Avatar.svelte).
 export const AVATARS = [
 	'helm',
 	'axe',

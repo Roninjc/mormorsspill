@@ -9,7 +9,7 @@ export function injectSocketIO(httpServer) {
 	io = new Server(httpServer);
 
 	io.on('connection', (socket) => {
-		// --- Presencia a nivel de espacio (Asgard) ---
+		// --- Space-level presence (Asgard) ---
 		socket.on('space:join', ({ spaceId } = {}) => {
 			if (!spaceId) return;
 			socket.join(`space:${spaceId}`);
@@ -17,7 +17,7 @@ export function injectSocketIO(httpServer) {
 			socket.emit('presence:update', { activeGameId: active?.id ?? null });
 		});
 
-		// --- Sala de partida ---
+		// --- Game room ---
 		socket.on('game:join', ({ gameId } = {}) => {
 			if (!gameId) return;
 			socket.join(`game:${gameId}`);
@@ -66,7 +66,7 @@ export function injectSocketIO(httpServer) {
 			cb?.({ ok: true });
 		});
 
-		// --- Indicador efímero de "quién está anotando" ---
+		// --- Ephemeral "who is scoring" indicator ---
 		socket.on('editing', ({ gameId, roundNumber, name, on } = {}) => {
 			if (!gameId) return;
 			socket.to(`game:${gameId}`).emit('editing', { roundNumber, name, on });

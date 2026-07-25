@@ -35,7 +35,7 @@
 {/if}
 
 <div class="card">
-	<a class="btn btn-gold" href="/nueva-aett">Crear una Ætt</a>
+	<a class="btn btn-gold" href="/new-aett">Crear una Ætt</a>
 	<div style="height: 10px"></div>
-	<a class="btn btn-ghost" href="/unirse">Unirse con un código</a>
+	<a class="btn btn-ghost" href="/join">Unirse con un código</a>
 </div>

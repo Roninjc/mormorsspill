@@ -1,7 +1,7 @@
-// Reglas de Mormorsspill compartidas entre cliente y servidor.
-// La app es un marcador: no valida melds, solo puntúa. Ver DESIGN.md §2/§3.
+// Mormorsspill rules shared between client and server.
+// The app is a scorekeeper: it does not validate melds, only scores. See DESIGN.md §2/§3.
 
-/** Los 8 contratos fijos, en orden de juego. */
+/** The 8 fixed contracts, in play order. */
 export const ROUND_OBJECTIVES = [
 	{ number: 1, objective: '2 tríos', note: null },
 	{ number: 2, objective: '1 trío + 1 escalera', note: null },
@@ -15,7 +15,7 @@ export const ROUND_OBJECTIVES = [
 
 export const TOTAL_ROUNDS = ROUND_OBJECTIVES.length;
 
-/** Valores de carta para sumar cartas sobrantes. */
+/** Card values for tallying leftover cards. */
 export const CARD_VALUES = [
 	{ label: '2–9', points: 5 },
 	{ label: 'Figuras y 10', points: 10 },
@@ -25,14 +25,14 @@ export const CARD_VALUES = [
 
 export const FAILED_LAYDOWN_PENALTY = 100;
 
-/** Toda puntuación válida es múltiplo de 5. */
+/** Every valid score is a multiple of 5. */
 export function isValidScore(n) {
 	return Number.isInteger(n) && n >= 0 && n % 5 === 0;
 }
 
 /**
- * Calcula la tabla final a partir de participantes y sus puntuaciones por ronda.
- * Menor total gana; desempate por más rondas ganadas.
+ * Computes the final standings from participants and their per-round scores.
+ * Lowest total wins; tie-break by most rounds won.
  * @param {{id:number,name:string}[]} participants
  * @param {{participant_id:number, card_points:number, penalty:number}[]} scores
  * @param {{round_winner_participant_id:number|null}[]} rounds
@@ -56,7 +56,7 @@ export function computeStandings(participants, scores, rounds) {
 	const rows = [...byPart.values()].sort(
 		(a, b) => a.total - b.total || b.roundsWon - a.roundsWon
 	);
-	// posición con empates compartidos (mismo total y mismas rondas ganadas)
+	// shared position for ties (same total and same rounds won)
 	let pos = 0;
 	rows.forEach((row, i) => {
 		const prev = rows[i - 1];

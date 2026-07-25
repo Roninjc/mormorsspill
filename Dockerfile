@@ -4,11 +4,11 @@
 FROM node:22-bookworm-slim AS builder
 WORKDIR /app
 
-# Commit sha que pasa el CI (el contexto de build no tiene .git); se muestra como versión.
+# Commit sha passed by CI (the build context has no .git); shown in-app as the version.
 ARG APP_VERSION=dev
 ENV APP_VERSION=$APP_VERSION
 
-# Toolchain para compilar el módulo nativo de better-sqlite3
+# Toolchain to compile the better-sqlite3 native module
 RUN apt-get update && apt-get install -y --no-install-recommends python3 make g++ \
 	&& rm -rf /var/lib/apt/lists/*
 
@@ -17,7 +17,7 @@ RUN npm ci
 
 COPY . .
 RUN npm run build
-# Deja solo dependencias de producción (better-sqlite3, socket.io) con su binario ya compilado
+# Keep only production dependencies (better-sqlite3, socket.io) with their compiled binary
 RUN npm prune --omit=dev
 
 # ---------- runtime ----------
@@ -31,7 +31,7 @@ ENV NODE_ENV=production \
 	DATABASE_PATH=/data/mormorsspill.db \
 	SESSION_SECRET_PATH=/data/.session_secret
 
-# Litestream (opcional, se activa solo si hay réplica configurada). ca-certificates para TLS a S3/R2.
+# Litestream (optional, only activates if a replica is configured). ca-certificates for TLS to S3/R2.
 ARG TARGETARCH
 ARG LITESTREAM_VERSION=v0.3.13
 RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl \
@@ -39,7 +39,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
 		| tar -xz -C /usr/local/bin litestream \
 	&& apt-get purge -y curl && apt-get autoremove -y && rm -rf /var/lib/apt/lists/*
 
-# Artefactos de la app (server.js importa build/handler.js y src/lib/server/*)
+# App artifacts (server.js imports build/handler.js and src/lib/server/*)
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/build ./build
 COPY --from=builder /app/src ./src

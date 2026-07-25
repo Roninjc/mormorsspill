@@ -5,7 +5,7 @@ const OPTS = {
 	path: '/',
 	httpOnly: true,
 	sameSite: 'lax',
-	secure: false, // detrás de nginx TLS; el navegador lo ve http al proxy. Ajustable por env si se sirve TLS directo.
+	secure: false, // behind nginx TLS; the browser reaches the proxy over http. Tune via env if serving TLS directly.
 	maxAge: 60 * 60 * 24 * 365
 };
 

@@ -1,13 +1,13 @@
-# Configuración de Litestream (backup continuo del SQLite a la nube).
-# Solo se usa si defines LITESTREAM_REPLICA_URL y las credenciales (ver docker-compose / DEPLOY.md).
-# Ejemplos de URL de réplica:
-#   Cloudflare R2 / S3:  s3://mi-bucket/mormorsspill
-#   Backblaze B2:        s3://mi-bucket/mormorsspill   (con endpoint B2)
+# Litestream configuration (continuous backup of the SQLite DB to the cloud).
+# Only used if you set LITESTREAM_REPLICA_URL and credentials (see docker-compose / DEPLOY.md).
+# Replica URL examples:
+#   Cloudflare R2 / S3:  s3://my-bucket/mormorsspill
+#   Backblaze B2:        s3://my-bucket/mormorsspill   (with a B2 endpoint)
 dbs:
   - path: ${DATABASE_PATH}
     replicas:
       - url: ${LITESTREAM_REPLICA_URL}
-        # Para R2/B2 hay que indicar el endpoint (S3 nativo no lo necesita):
+        # For R2/B2 you must set the endpoint (native S3 doesn't need it):
         endpoint: ${LITESTREAM_ENDPOINT}
-        # Región (R2 usa 'auto'):
+        # Region (R2 uses 'auto'):
         region: ${LITESTREAM_REGION}

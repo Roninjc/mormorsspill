@@ -19,7 +19,7 @@
 <div class="topbar">
 	<span class="brand">⚔ Asgard</span>
 	<div class="row">
-		<a class="pill" href="/miembros">👥 Ætt</a>
+		<a class="pill" href="/members">👥 Ætt</a>
 		<form method="POST" action="/logout">
 			<button class="pill" type="submit" style="cursor: pointer">Salir</button>
 		</form>
@@ -40,7 +40,7 @@
 			<span class="dot-live"></span>
 			<strong>Se está jugando ahora</strong>
 		</span>
-		<a class="btn btn-sm btn-gold" href="/partida/{activeGameId}">Ver / anotar</a>
+		<a class="btn btn-sm btn-gold" href="/game/{activeGameId}">Ver / anotar</a>
 	</div>
 {/if}
 
@@ -98,14 +98,14 @@
 
 <div class="card small muted">
 	Código de invitación: <strong style="color: var(--gold); letter-spacing: 0.15em">{data.inviteCode}</strong>
-	· <a href="/miembros">gestionar Ætt e invitar</a>
+	· <a href="/members">gestionar Ætt e invitar</a>
 	<div class="small" style="margin-top: 8px; opacity: 0.5">v {data.version}</div>
 </div>
 
 <div class="actionbar">
 	{#if activeGameId}
-		<a class="btn btn-primary" href="/partida/{activeGameId}">▶ Continuar partida</a>
+		<a class="btn btn-primary" href="/game/{activeGameId}">▶ Continuar partida</a>
 	{:else}
-		<a class="btn btn-primary" href="/asgard/nueva-partida">▶ Empezar partida</a>
+		<a class="btn btn-primary" href="/asgard/new-game">▶ Empezar partida</a>
 	{/if}
 </div>

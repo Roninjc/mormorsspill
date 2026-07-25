@@ -20,7 +20,7 @@ export function load({ params, locals }) {
 		rounds,
 		scores: snap.scores,
 		standings: snap.standings,
-		canEdit: !snap.game.single_scorer || true // F1: edición abierta a miembros logueados
+		canEdit: !snap.game.single_scorer || true // F1: open editing for logged-in members
 	};
 }
 
@@ -56,6 +56,6 @@ export const actions = {
 	finish: async ({ params, locals }) => {
 		const snap = loadGame(params, locals);
 		finishGame(snap.game.id);
-		throw redirect(303, `/partida/${snap.game.id}/resultado`);
+		throw redirect(303, `/game/${snap.game.id}/result`);
 	}
 };

@@ -2,7 +2,7 @@ import { scryptSync, randomBytes, timingSafeEqual, createHmac } from 'node:crypt
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
-// --- Secreto de sesión (persistente entre reinicios) ---
+// --- Session secret (persists across restarts) ---
 function loadSecret() {
 	if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
 	const path = process.env.SESSION_SECRET_PATH || 'data/.session_secret';
@@ -29,7 +29,7 @@ export function verifyPin(pin, stored) {
 	return candidate.length === expected.length && timingSafeEqual(candidate, expected);
 }
 
-// --- Sesión firmada (memberId.HMAC) ---
+// --- Signed session (memberId.HMAC) ---
 export function signSession(memberId) {
 	const payload = String(memberId);
 	const sig = createHmac('sha256', SECRET).update(payload).digest('base64url');
@@ -49,8 +49,8 @@ export function verifySession(value) {
 	return Number.isInteger(id) ? id : null;
 }
 
-// --- Código de invitación ---
-const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // sin I/O/0/1 ambiguos
+// --- Invite code ---
+const ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; // no ambiguous I/O/0/1
 export function generateInviteCode() {
 	const bytes = randomBytes(6);
 	let out = '';

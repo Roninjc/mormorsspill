@@ -3,7 +3,7 @@
 
 	let { id = 'helm', size = 44, ring = true } = $props();
 
-	// Cada motivo tiene su color de cresta.
+	// Each motif has its own crest color.
 	const COLORS = {
 		helm: '#e4b34a',
 		axe: '#e0473f',
@@ -17,7 +17,7 @@
 		raidho: '#e08a3c'
 	};
 
-	// Glifos: trazos con stroke=currentColor (el color lo pone el <svg>).
+	// Glyphs: strokes with stroke=currentColor (color set by the <svg>).
 	const GLYPHS = {
 		helm: `<path d="M24 58 A26 26 0 0 1 76 58" /><line x1="22" y1="58" x2="78" y2="58" /><line x1="50" y1="58" x2="50" y2="74" /><path d="M30 54 Q16 50 16 30" /><path d="M70 54 Q84 50 84 30" />`,
 		axe: `<line x1="34" y1="82" x2="60" y2="24" /><path d="M52 22 Q78 16 74 46 Q60 42 50 46 Z" />`,

@@ -39,5 +39,5 @@
 </div>
 
 <div class="actionbar">
-	<a class="btn btn-primary" href="/asgard/nueva-partida">▶ Otra partida</a>
+	<a class="btn btn-primary" href="/asgard/new-game">▶ Otra partida</a>
 </div>

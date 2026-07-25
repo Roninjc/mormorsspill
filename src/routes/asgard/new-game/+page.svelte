@@ -42,7 +42,7 @@
 	<div class="card">
 		<h3>Invitados</h3>
 		{#if data.guests.length === 0}
-			<p class="muted small">Ninguno. <a href="/miembros">Añadir invitado</a></p>
+			<p class="muted small">Ninguno. <a href="/members">Añadir invitado</a></p>
 		{/if}
 		{#each data.guests as g}
 			{@const key = `g:${g.id}`}

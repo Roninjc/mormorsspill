@@ -5,7 +5,7 @@
 	let { data, form } = $props();
 
 	let promoting = $state(null); // guestId
-	const joinUrl = $derived(`${data.origin}/unirse?code=${data.inviteCode}`);
+	const joinUrl = $derived(`${data.origin}/join?code=${data.inviteCode}`);
 	let qrDataUrl = $state('');
 
 	onMount(async () => {

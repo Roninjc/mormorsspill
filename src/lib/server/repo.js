@@ -2,7 +2,7 @@ import { db } from './db.js';
 import { hashPin, generateInviteCode } from './auth.js';
 import { ROUND_OBJECTIVES, TOTAL_ROUNDS, computeStandings } from '../rules.js';
 
-// ---------- Ætt (space) + miembros + invitados ----------
+// ---------- Ætt (space) + members + guests ----------
 
 export function createSpace({ name, memberName, avatar, pin }) {
 	const tx = db.transaction(() => {
@@ -61,7 +61,7 @@ export function listGuests(spaceId) {
 		.all(spaceId);
 }
 
-/** Para el selector de login: todos los miembros agrupados por Ætt. */
+/** For the login picker: all members grouped by Ætt. */
 export function listSpacesWithMembers() {
 	const spaces = db.prepare('SELECT id, name FROM space ORDER BY name').all();
 	return spaces.map((s) => ({ ...s, members: listMembers(s.id) }));
@@ -73,7 +73,7 @@ export function createGuest(spaceId, { name, avatar }) {
 		.get(spaceId, name, avatar || null);
 }
 
-/** Promociona un invitado a miembro y migra su historial de participaciones. */
+/** Promotes a guest to member and migrates their participation history. */
 export function promoteGuest(guestId, { pin }) {
 	const guest = db.prepare('SELECT * FROM guest WHERE id = ?').get(guestId);
 	if (!guest) return null;
@@ -83,7 +83,7 @@ export function promoteGuest(guestId, { pin }) {
 				'INSERT INTO member (space_id, display_name, avatar, pin_hash) VALUES (?, ?, ?, ?) RETURNING *'
 			)
 			.get(guest.space_id, guest.display_name, guest.avatar, hashPin(pin));
-		// repunta participaciones históricas del invitado al nuevo miembro
+		// repoint the guest's historical participations to the new member
 		db.prepare(
 			'UPDATE participant SET member_id = ?, guest_id = NULL WHERE guest_id = ?'
 		).run(member.id, guestId);
@@ -100,11 +100,11 @@ export function setIncludeGuests(spaceId, include) {
 	);
 }
 
-// ---------- Partidas ----------
+// ---------- Games ----------
 
 /**
- * Crea una partida ya en curso con sus 8 rondas.
- * participants: [{ memberId }|{ guestId }] en orden de asiento.
+ * Creates an in-progress game with its 8 rounds.
+ * participants: [{ memberId }|{ guestId }] in seat order.
  */
 export function createGame(spaceId, { participants, singleScorer = false, dealerSeat = 0 }) {
 	const tx = db.transaction(() => {
@@ -132,7 +132,7 @@ export function createGame(spaceId, { participants, singleScorer = false, dealer
 	return tx();
 }
 
-/** Participantes de una partida con nombre/avatar resueltos. */
+/** A game's participants with name/avatar resolved. */
 export function listParticipants(gameId) {
 	return db
 		.prepare(
@@ -149,7 +149,7 @@ export function listParticipants(gameId) {
 		.all(gameId);
 }
 
-/** Snapshot completo de una partida para la pantalla de anotación / espectador. */
+/** Full snapshot of a game for the scoring / spectator screen. */
 export function getGameSnapshot(gameId) {
 	const game = db.prepare('SELECT * FROM game WHERE id = ?').get(gameId);
 	if (!game) return null;
@@ -181,8 +181,8 @@ export function setScore({ roundId, participantId, cardPoints, penalty, enteredB
 }
 
 /**
- * Guarda una ronda completa de forma transaccional: puntuaciones de todos,
- * ganador a 0, marca la ronda como done y avanza la ronda actual (solo hacia delante).
+ * Saves a full round transactionally: everyone's scores, winner set to 0,
+ * marks the round done and advances the current round (forward only).
  * entries: [{ participantId, cardPoints, penalty }]
  */
 export function saveRoundScores({ gameId, roundId, winnerParticipantId, entries, enteredBy }) {
@@ -237,7 +237,7 @@ export function getActiveGame(spaceId) {
 		.get(spaceId);
 }
 
-// ---------- Estadísticas (Asgard) ----------
+// ---------- Stats (Asgard) ----------
 
 export function listRecentGames(spaceId, limit = 10) {
 	const games = db
@@ -253,7 +253,7 @@ export function listRecentGames(spaceId, limit = 10) {
 	});
 }
 
-/** Ranking de miembros: partidas, victorias, media de puntos. Invitados según toggle. */
+/** Member ranking: games, wins, average points. Guests per the toggle. */
 export function getRanking(spaceId) {
 	const space = getSpace(spaceId);
 	const includeGuests = !!space?.include_guests_in_rankings;

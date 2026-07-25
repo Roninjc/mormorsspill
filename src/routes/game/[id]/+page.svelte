@@ -7,7 +7,7 @@
 
 	let { data } = $props();
 
-	// Estado vivo de la partida (arranca con el snapshot SSR, se refresca por socket).
+	// Live game state (starts from the SSR snapshot, refreshed via socket).
 	let snap = $state({
 		game: data.game,
 		participants: data.participants,
@@ -39,7 +39,7 @@
 		return m;
 	});
 
-	// (Re)inicializa el editor cuando cambia la ronda activa o llega estado nuevo.
+	// (Re)initializes the editor when the active round changes or new state arrives.
 	$effect(() => {
 		activeRound;
 		snap;
@@ -81,7 +81,7 @@
 		};
 	});
 
-	// Avisa a los demás de en qué ronda estoy anotando.
+	// Let others know which round I'm scoring.
 	$effect(() => {
 		const r = activeRound;
 		if (socket && snap.game.status === 'in_progress') {
@@ -138,7 +138,7 @@
 
 	function finish() {
 		socket.emit('game:finish', { gameId: snap.game.id }, (res) => {
-			if (res?.ok) goto(`/partida/${snap.game.id}/resultado`);
+			if (res?.ok) goto(`/game/${snap.game.id}/result`);
 		});
 	}
 </script>
@@ -159,7 +159,7 @@
 	<p class="notice">✍️ {editingBy.name} está anotando la ronda {editingBy.roundNumber}</p>
 {/if}
 
-<!-- Selector de ronda -->
+<!-- Round selector -->
 <div class="row wrap" style="gap: 6px; margin-bottom: 12px">
 	{#each snap.rounds as r}
 		<button
@@ -247,7 +247,7 @@
 	</div>
 {/if}
 
-<!-- Tabla acumulada -->
+<!-- Cumulative scoreboard -->
 <div class="card">
 	<h3>Marcador</h3>
 	<div style="overflow-x: auto">
@@ -277,7 +277,7 @@
 
 <div class="actionbar">
 	{#if snap.game.status !== 'in_progress'}
-		<a class="btn btn-gold" href="/partida/{snap.game.id}/resultado">Ver resultado</a>
+		<a class="btn btn-gold" href="/game/{snap.game.id}/result">Ver resultado</a>
 	{:else if allDone}
 		<button class="btn btn-gold" type="button" onclick={finish}>🏆 Finalizar y ver ganador</button>
 	{:else}

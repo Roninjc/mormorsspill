@@ -24,6 +24,6 @@ export const actions = {
 		if (participants.length < 2) return fail(400, { error: 'Elige al menos 2 jugadores' });
 
 		const gameId = createGame(locals.space.id, { participants, singleScorer });
-		throw redirect(303, `/partida/${gameId}`);
+		throw redirect(303, `/game/${gameId}`);
 	}
 };

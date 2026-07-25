@@ -1,5 +1,5 @@
 :root {
-	/* Paleta: saga de fiordo */
+	/* Palette: fjord saga */
 	--fjord: #0b1622;
 	--fjord-elev: #16232f;
 	--fjord-elev-2: #1e2f3d;
@@ -58,7 +58,7 @@ h1 {
 	letter-spacing: 0.02em;
 }
 
-/* Números-héroe estilo dorsal */
+/* Jersey-style hero numbers */
 .jersey {
 	font-family: var(--font-jersey);
 	font-weight: 400;
@@ -95,7 +95,7 @@ a {
 	color: var(--gold);
 }
 
-/* Regla dorada fina: motivo estructural recurrente */
+/* Thin gold rule: recurring structural motif */
 .rule {
 	height: 1px;
 	background: linear-gradient(90deg, transparent, var(--gold), transparent);
@@ -223,7 +223,7 @@ select:focus {
 	width: 100%;
 }
 
-/* Avatares (crestas de clan SVG) */
+/* Avatars (SVG clan crests) */
 .avatar {
 	width: 44px;
 	height: 44px;
@@ -296,7 +296,7 @@ select:focus {
 	border-color: rgba(224, 71, 63, 0.5);
 }
 
-/* Hero: líder / marcador destacado */
+/* Hero: leader / highlighted score */
 .hero {
 	position: relative;
 	overflow: hidden;

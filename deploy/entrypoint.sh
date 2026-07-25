@@ -1,18 +1,18 @@
 #!/bin/sh
 set -e
 
-# Si hay una réplica de Litestream configurada, restaura (si el volumen está vacío)
-# y arranca la app bajo supervisión de Litestream para replicar en continuo.
-# Si no, arranca la app directamente.
+# If a Litestream replica is configured, restore (when the volume is empty)
+# and run the app under Litestream supervision for continuous replication.
+# Otherwise, run the app directly.
 if [ -n "$LITESTREAM_REPLICA_URL" ]; then
-	echo "[entrypoint] Litestream activo → réplica: $LITESTREAM_REPLICA_URL"
-	# Restaura solo si la BD local no existe todavía (primer arranque / recuperación)
+	echo "[entrypoint] Litestream active → replica: $LITESTREAM_REPLICA_URL"
+	# Restore only if the local DB doesn't exist yet (first boot / recovery)
 	if [ ! -f "$DATABASE_PATH" ]; then
-		echo "[entrypoint] BD no encontrada, intentando restaurar desde la réplica…"
-		litestream restore -if-replica-exists "$DATABASE_PATH" || echo "[entrypoint] sin réplica previa, empezamos de cero"
+		echo "[entrypoint] DB not found, trying to restore from the replica…"
+		litestream restore -if-replica-exists "$DATABASE_PATH" || echo "[entrypoint] no previous replica, starting fresh"
 	fi
 	exec litestream replicate -exec "node server.js"
 else
-	echo "[entrypoint] Litestream desactivado (sin LITESTREAM_REPLICA_URL). Arrancando app…"
+	echo "[entrypoint] Litestream disabled (no LITESTREAM_REPLICA_URL). Starting app…"
 	exec node server.js
 fi

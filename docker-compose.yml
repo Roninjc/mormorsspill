@@ -1,6 +1,6 @@
-# Compose para PRUEBAS LOCALES (construye la imagen desde el código).
-# En producción NO se usa este archivo: el CI publica la imagen en GHCR y la VM la
-# arranca desde su compose.yml central (ver deploy/compose.snippet.yml y DEPLOY.md).
+# Compose for LOCAL TESTING (builds the image from source).
+# Not used in production: CI publishes the image to GHCR and the VM runs it
+# from its central compose.yml (see deploy/compose.snippet.yml and DEPLOY.md).
 services:
   app:
     build: .
@@ -10,21 +10,21 @@ services:
     environment:
       # --- App ---
       PORT: 3000
-      # IMPORTANTE: URL pública real (para CSRF de los formularios detrás de nginx)
-      ORIGIN: https://mormorsspill.TU-DOMINIO.com
+      # IMPORTANT: real public URL (for form CSRF behind nginx)
+      ORIGIN: https://mormorsspill.YOUR-DOMAIN.com
       PROTOCOL_HEADER: x-forwarded-proto
       HOST_HEADER: x-forwarded-host
       DATABASE_PATH: /data/mormorsspill.db
       SESSION_SECRET_PATH: /data/.session_secret
-      # --- Litestream (opcional: rellena para activar el backup a la nube) ---
-      # LITESTREAM_REPLICA_URL: s3://mi-bucket/mormorsspill
+      # --- Litestream (optional: fill in to enable cloud backup) ---
+      # LITESTREAM_REPLICA_URL: s3://my-bucket/mormorsspill
       # LITESTREAM_ENDPOINT: https://<accountid>.r2.cloudflarestorage.com
       # LITESTREAM_REGION: auto
       # LITESTREAM_ACCESS_KEY_ID: xxxxxxxx
       # LITESTREAM_SECRET_ACCESS_KEY: xxxxxxxx
     volumes:
       - mormorsspill-data:/data
-    # Solo accesible desde el propio host; nginx hace de reverse proxy.
+    # Only reachable from the host itself; nginx acts as the reverse proxy.
     ports:
       - "127.0.0.1:3000:3000"
 

@@ -2,7 +2,7 @@ import { sveltekit } from '@sveltejs/kit/vite';
 import { SvelteKitPWA } from '@vite-pwa/sveltekit';
 import { defineConfig } from 'vite';
 
-/** Adjunta Socket.IO al servidor HTTP de Vite en desarrollo. */
+/** Attaches Socket.IO to Vite's HTTP server in development. */
 const socketIODev = {
 	name: 'socket-io-dev',
 	async configureServer(server) {
