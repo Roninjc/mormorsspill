@@ -1,0 +1,33 @@
+# ─────────────────────────────────────────────────────────────────────────
+# Pega este servicio dentro de `services:` en el compose.yml central de tu VM
+# (el mismo que usa el workflow: /home/jake/compose.yml).
+# Y añade el volumen `mormorsspill-data` en la sección `volumes:` de ese archivo.
+# El CI hará `docker compose pull mormorsspill && up -d mormorsspill`.
+# ─────────────────────────────────────────────────────────────────────────
+
+  mormorsspill:
+    image: ghcr.io/roninjc/mormorsspill:latest
+    container_name: mormorsspill
+    restart: unless-stopped
+    environment:
+      PORT: 3000
+      ORIGIN: https://mormorsspill.TU-DOMINIO.com
+      PROTOCOL_HEADER: x-forwarded-proto
+      HOST_HEADER: x-forwarded-host
+      DATABASE_PATH: /data/mormorsspill.db
+      SESSION_SECRET_PATH: /data/.session_secret
+      # --- Litestream (opcional: rellena para activar el backup a la nube) ---
+      # LITESTREAM_REPLICA_URL: s3://mi-bucket/mormorsspill
+      # LITESTREAM_ENDPOINT: https://<accountid>.r2.cloudflarestorage.com
+      # LITESTREAM_REGION: auto
+      # LITESTREAM_ACCESS_KEY_ID: xxxxxxxx
+      # LITESTREAM_SECRET_ACCESS_KEY: xxxxxxxx
+    volumes:
+      - mormorsspill-data:/data
+    # Publica solo en localhost; tu reverse proxy enruta el subdominio (con WS upgrade).
+    ports:
+      - "127.0.0.1:3000:3000"
+
+# En la sección volumes: del compose.yml central, añade:
+# volumes:
+#   mormorsspill-data:

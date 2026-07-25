@@ -1,0 +1,30 @@
+# Dependencias — se instalan con `npm ci` dentro de la imagen
+node_modules
+**/node_modules
+
+# Control de versiones & CI
+.git
+.gitignore
+.github
+
+# Salidas de build — se regeneran con `npm run build`
+build
+.svelte-kit
+
+# Datos locales (nunca al contenedor)
+data
+*.db
+*.db-*
+
+# Herramientas / cruft
+.claude
+.vscode
+.DS_Store
+**/.DS_Store
+*.log
+.playwright-mcp
+
+# Docs (no hacen falta para construir)
+*.md
+
+# OJO: NO ignorar deploy/ — el Dockerfile copia deploy/litestream.yml y deploy/entrypoint.sh

@@ -1,0 +1,32 @@
+# Compose para PRUEBAS LOCALES (construye la imagen desde el código).
+# En producción NO se usa este archivo: el CI publica la imagen en GHCR y la VM la
+# arranca desde su compose.yml central (ver deploy/compose.snippet.yml y DEPLOY.md).
+services:
+  app:
+    build: .
+    image: mormorsspill:latest
+    container_name: mormorsspill
+    restart: unless-stopped
+    environment:
+      # --- App ---
+      PORT: 3000
+      # IMPORTANTE: URL pública real (para CSRF de los formularios detrás de nginx)
+      ORIGIN: https://mormorsspill.TU-DOMINIO.com
+      PROTOCOL_HEADER: x-forwarded-proto
+      HOST_HEADER: x-forwarded-host
+      DATABASE_PATH: /data/mormorsspill.db
+      SESSION_SECRET_PATH: /data/.session_secret
+      # --- Litestream (opcional: rellena para activar el backup a la nube) ---
+      # LITESTREAM_REPLICA_URL: s3://mi-bucket/mormorsspill
+      # LITESTREAM_ENDPOINT: https://<accountid>.r2.cloudflarestorage.com
+      # LITESTREAM_REGION: auto
+      # LITESTREAM_ACCESS_KEY_ID: xxxxxxxx
+      # LITESTREAM_SECRET_ACCESS_KEY: xxxxxxxx
+    volumes:
+      - mormorsspill-data:/data
+    # Solo accesible desde el propio host; nginx hace de reverse proxy.
+    ports:
+      - "127.0.0.1:3000:3000"
+
+volumes:
+  mormorsspill-data:

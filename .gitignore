@@ -1,0 +1,33 @@
+node_modules
+/build
+/.svelte-kit
+/data
+*.db
+*.db-*
+nginx.mormorsspill.conf
+
+# Output
+.output
+.vercel
+.netlify
+.wrangler
+/.svelte-kit
+/build
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.*
+!.env.example
+!.env.test
+
+# Vite
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+.claude
+CLAUDE.md
+.playwright-mcp
