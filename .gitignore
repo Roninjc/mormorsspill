@@ -5,6 +5,7 @@ node_modules
 *.db
 *.db-*
 nginx.mormorsspill.conf
+.info-docs
 
 # Output
 .output

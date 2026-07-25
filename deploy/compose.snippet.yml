@@ -17,9 +17,10 @@
       # LITESTREAM_SECRET_ACCESS_KEY: xxxxxxxx
     volumes:
       - mormorsspill-data:/data
-    # Publish on localhost only; your reverse proxy routes the subdomain (with WS upgrade).
+    # Exposed on the LAN so the separate nginx VM can reach it (same pattern as worldwide's 9000).
+    # Your reverse proxy routes the subdomain here (with WS upgrade).
     ports:
-      - "127.0.0.1:3000:3000"
+      - "3000:3000"
 
 # In the central compose.yml's volumes: section, add:
 # volumes:
