@@ -101,13 +101,13 @@ a {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	width: 36px;
-	height: 36px;
+	width: 34px;
+	height: 34px;
 	border-radius: 50%;
 	border: 1px solid var(--border);
 	background: var(--fjord-elev);
 	color: var(--stone);
-	font-size: 1.1rem;
+	font-size: 1rem;
 	line-height: 1;
 	flex-shrink: 0;
 	transition: color 0.15s, border-color 0.15s;

@@ -25,9 +25,15 @@
 		background: none;
 		border: none;
 		padding: 4px;
+		width: 60px;
+		height: 60px;
+		box-sizing: border-box;
+		justify-self: center;
 		border-radius: 50%;
 		cursor: pointer;
 		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		transition: opacity 0.12s ease;
 	}
 </style>

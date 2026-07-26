@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import AvatarPicker from '$lib/AvatarPicker.svelte';
 	import Avatar from '$lib/Avatar.svelte';
+	import BackLink from '$lib/BackLink.svelte';
 	let { data, form } = $props();
 
 	let promoting = $state(null); // guestId
@@ -19,13 +20,13 @@
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/asgard">← Asgard</a>
+	<BackLink href="/asgard" label="Asgard" />
 </div>
 
-<h1>La Ætt</h1>
+<h1>El Ætt</h1>
 
 <div class="card center">
-	<h3>Invitar a la Ætt</h3>
+	<h3>Invitar al Ætt</h3>
 	<p class="muted small">Que escaneen este QR, o pásales el código.</p>
 	{#if qrDataUrl}
 		<img

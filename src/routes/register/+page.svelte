@@ -1,10 +1,11 @@
 <script>
 	import AvatarPicker from '$lib/AvatarPicker.svelte';
+	import BackLink from '$lib/BackLink.svelte';
 	let { form } = $props();
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/login">← Entrar</a>
+	<BackLink href="/login" label="Entrar" />
 	<a class="close-btn" href="/" aria-label="Cerrar">✕</a>
 </div>
 

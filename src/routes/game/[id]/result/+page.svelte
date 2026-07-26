@@ -1,12 +1,13 @@
 <script>
 	import Avatar from '$lib/Avatar.svelte';
+	import BackLink from '$lib/BackLink.svelte';
 	let { data } = $props();
 	const medals = ['🥇', '🥈', '🥉'];
 	const champ = data.standings[0];
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/asgard">← Asgard</a>
+	<BackLink href="/asgard" label="Asgard" />
 </div>
 
 <div class="card hero center">

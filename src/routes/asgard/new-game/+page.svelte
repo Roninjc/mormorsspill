@@ -1,5 +1,6 @@
 <script>
 	import Avatar from '$lib/Avatar.svelte';
+	import BackLink from '$lib/BackLink.svelte';
 	let { data, form } = $props();
 
 	let selected = $state(new Set());
@@ -11,7 +12,7 @@
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/asgard">← Asgard</a>
+	<BackLink href="/asgard" label="Asgard" />
 </div>
 
 <h1>Nueva partida</h1>

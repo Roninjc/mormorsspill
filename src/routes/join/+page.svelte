@@ -1,13 +1,14 @@
 <script>
 	import Avatar from '$lib/Avatar.svelte';
+	import BackLink from '$lib/BackLink.svelte';
 	let { data, form } = $props();
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/midgard">← Midgard</a>
+	<BackLink href="/midgard" label="Midgard" />
 </div>
 
-<h1>Unirse a una Ætt</h1>
+<h1>Unirse a un Ætt</h1>
 <p class="muted">Pide el código de invitación a un miembro (o escanea su QR).</p>
 
 <form method="POST" class="card">
@@ -32,7 +33,7 @@
 	{#if form?.error}<p class="error">{form.error}</p>{/if}
 
 	<div style="height: 12px"></div>
-	<button class="btn btn-gold" type="submit">Entrar en la Ætt</button>
+	<button class="btn btn-gold" type="submit">Entrar en el Ætt</button>
 </form>
 
 <style>

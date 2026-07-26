@@ -1,28 +1,29 @@
 <script>
 	import Avatar from '$lib/Avatar.svelte';
+	import BackLink from '$lib/BackLink.svelte';
 	let { data, form } = $props();
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/midgard">← Midgard</a>
+	<BackLink href="/midgard" label="Midgard" />
 </div>
 
-<h1>Fundar una Ætt</h1>
-<p class="muted">Tu clan. Serás su primer miembro.</p>
+<h1>Fundar un Ætt</h1>
+<p class="muted">Tu Ætt. Serás su primer miembro.</p>
 
 <form method="POST" class="card">
-	<label for="name">Nombre de la Ætt</label>
+	<label for="name">Nombre del Ætt</label>
 	<input id="name" name="name" type="text" placeholder="p. ej. Los Bjørn" autofocus required />
 
 	<div class="as-you">
 		<Avatar id={data.profile.avatar} size={40} />
-		<span class="small">La fundas como <strong>{data.profile.display_name}</strong></span>
+		<span class="small">Lo fundas como <strong>{data.profile.display_name}</strong></span>
 	</div>
 
 	{#if form?.error}<p class="error">{form.error}</p>{/if}
 
 	<div style="height: 12px"></div>
-	<button class="btn btn-gold" type="submit">Fundar la Ætt</button>
+	<button class="btn btn-gold" type="submit">Fundar el Ætt</button>
 </form>
 
 <style>

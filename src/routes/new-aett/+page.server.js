@@ -12,7 +12,7 @@ export const actions = {
 		if (!locals.user) throw redirect(302, '/login');
 		const form = await request.formData();
 		const name = String(form.get('name') || '').trim();
-		if (!name) return fail(400, { error: 'Falta el nombre de la Ætt' });
+		if (!name) return fail(400, { error: 'Falta el nombre del Ætt' });
 
 		const { space } = createSpace({ name, userId: locals.user.id });
 		setActiveSpace(cookies, space.id);

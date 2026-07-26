@@ -4,6 +4,7 @@ import {
 	listMembers,
 	getActiveGame,
 	getMembership,
+	getUserStats,
 	updateUserProfile,
 	changeUserPin
 } from '$lib/server/repo.js';
@@ -17,13 +18,15 @@ export function load({ locals }) {
 		members: listMembers(s.id).length,
 		activeGame: !!getActiveGame(s.id)
 	}));
+	const record = getUserStats(locals.user.id);
 	return {
 		profile: {
 			id: locals.user.id,
 			display_name: locals.user.display_name,
 			avatar: locals.user.avatar
 		},
-		spaces
+		spaces,
+		stats: { aetter: spaces.length, games: record.games, wins: record.wins }
 	};
 }
 
@@ -38,22 +41,17 @@ export const actions = {
 		throw redirect(303, '/asgard');
 	},
 
+	// Single save: name + avatar always; PIN only if a new one was provided.
 	saveProfile: async ({ request, locals }) => {
 		if (!locals.user) throw redirect(302, '/');
 		const form = await request.formData();
 		const name = String(form.get('name') || '').trim();
 		const avatar = String(form.get('avatar') || '').trim();
-		if (!name) return fail(400, { error: 'Falta tu nombre' });
-		updateUserProfile(locals.user.id, { name, avatar });
-		return { saved: true };
-	},
-
-	changePin: async ({ request, locals }) => {
-		if (!locals.user) throw redirect(302, '/');
-		const form = await request.formData();
 		const pin = String(form.get('pin') || '').trim();
-		if (!/^\d{4}$/.test(pin)) return fail(400, { pinError: 'El PIN debe ser de 4 dígitos' });
-		changeUserPin(locals.user.id, pin);
-		return { pinSaved: true };
+		if (!name) return fail(400, { error: 'Falta tu nombre' });
+		if (pin && !/^\d{4}$/.test(pin)) return fail(400, { error: 'El PIN debe ser de 4 dígitos' });
+		updateUserProfile(locals.user.id, { name, avatar });
+		if (pin) changeUserPin(locals.user.id, pin);
+		return { saved: true };
 	}
 };

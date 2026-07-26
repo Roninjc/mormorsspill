@@ -74,6 +74,22 @@ export function getMembership(userId, spaceId) {
 	return db.prepare('SELECT * FROM member WHERE user_id = ? AND space_id = ?').get(userId, spaceId);
 }
 
+/** Aggregate play record across all of a user's Ætts, for the profile card. */
+export function getUserStats(userId) {
+	const row = db
+		.prepare(
+			`SELECT
+			   COUNT(DISTINCT g.id) AS games,
+			   COUNT(DISTINCT CASE WHEN g.winner_participant_id = p.id THEN g.id END) AS wins
+			 FROM member m
+			 JOIN participant p ON p.member_id = m.id
+			 JOIN game g ON g.id = p.game_id AND g.status = 'finished'
+			 WHERE m.user_id = ?`
+		)
+		.get(userId);
+	return { games: row?.games || 0, wins: row?.wins || 0 };
+}
+
 /** The Ætts a user belongs to, for the Midgard hub. */
 export function listUserSpaces(userId) {
 	return db
@@ -99,6 +115,15 @@ export function createSpace({ name, userId }) {
 		return { space, member };
 	});
 	return tx();
+}
+
+/** Member and finished-game counts for the Ætt header. */
+export function getSpaceStats(spaceId) {
+	const members = db.prepare('SELECT COUNT(*) AS c FROM member WHERE space_id = ?').get(spaceId).c;
+	const games = db
+		.prepare("SELECT COUNT(*) AS c FROM game WHERE space_id = ? AND status = 'finished'")
+		.get(spaceId).c;
+	return { members, games };
 }
 
 export function getSpaceByCode(code) {

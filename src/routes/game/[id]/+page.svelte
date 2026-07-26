@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { goto } from '$app/navigation';
 	import Avatar from '$lib/Avatar.svelte';
+	import BackLink from '$lib/BackLink.svelte';
 	import { getSocket } from '$lib/socketClient.js';
 	import { CARD_VALUES, isValidScore, FAILED_LAYDOWN_PENALTY, ROUND_OBJECTIVES } from '$lib/rules.js';
 
@@ -144,7 +145,7 @@
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/asgard">← Asgard</a>
+	<BackLink href="/asgard" label="Asgard" />
 	<div class="row" style="gap: 8px">
 		<span class="pill">👁 {watchers}</span>
 		{#if snap.game.status === 'in_progress'}
