@@ -60,7 +60,12 @@
 
 	onMount(() => {
 		socket = getSocket();
-		socket.emit('game:join', { gameId: snap.game.id });
+		// Join the game room now, and again on every (re)connection — after a drop
+		// (e.g. phone locks) the socket reconnects fresh and is no longer in the room,
+		// so without re-joining it would stop receiving game:state updates.
+		const join = () => socket.emit('game:join', { gameId: snap.game.id });
+		join();
+		socket.on('connect', join);
 		socket.on('game:state', (s) => {
 			if (s?.game?.id === snap.game.id) snap = s;
 		});
@@ -75,6 +80,7 @@
 			}
 		});
 		return () => {
+			socket.off('connect', join);
 			socket.off('game:state');
 			socket.off('presence:game');
 			socket.off('editing');
@@ -131,6 +137,7 @@
 			{ gameId: snap.game.id, roundId: activeRoundObj.id, winnerParticipantId: winner, entries },
 			(res) => {
 				if (res?.ok) {
+					if (res.snap?.game?.id === snap.game.id) snap = res.snap;
 					if (activeRound < 8) activeRound = activeRound + 1;
 				} else errorMsg = res?.error || 'No se pudo guardar';
 			}
@@ -167,10 +174,14 @@
 			class="btn btn-sm"
 			style:background={r.number === activeRound ? 'var(--blood)' : 'var(--fjord-elev-2)'}
 			style:color={r.number === activeRound ? '#fff' : 'var(--text)'}
-			style:border-color={r.status === 'done' ? 'var(--good)' : 'var(--border)'}
+			style:border-color={r.number === activeRound
+				? 'var(--blood)'
+				: r.status === 'done'
+					? 'var(--good)'
+					: 'var(--border)'}
 			onclick={() => (activeRound = r.number)}
 		>
-			{r.number}{r.status === 'done' ? ' ✓' : ''}
+			{r.number}
 		</button>
 	{/each}
 </div>

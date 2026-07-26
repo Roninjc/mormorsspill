@@ -10,10 +10,15 @@
 
 	onMount(() => {
 		const socket = getSocket();
-		socket.emit('space:join', { spaceId: data.space?.id });
+		const joinSpace = () => socket.emit('space:join', { spaceId: data.space?.id });
+		joinSpace();
+		socket.on('connect', joinSpace); // re-join after any reconnect
 		const onPresence = ({ activeGameId: id }) => (activeGameId = id);
 		socket.on('presence:update', onPresence);
-		return () => socket.off('presence:update', onPresence);
+		return () => {
+			socket.off('connect', joinSpace);
+			socket.off('presence:update', onPresence);
+		};
 	});
 </script>
 

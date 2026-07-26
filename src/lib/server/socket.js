@@ -53,8 +53,11 @@ export function injectSocketIO(httpServer) {
 				})),
 				enteredBy: null
 			});
-			io.to(`game:${gameId}`).emit('game:state', getGameSnapshot(gameId));
-			cb?.({ ok: true });
+			const fresh = getGameSnapshot(gameId);
+			io.to(`game:${gameId}`).emit('game:state', fresh);
+			// Return the fresh snapshot in the ack too, so the saver updates even if it
+			// missed the room broadcast (e.g. reconnected with a new socket).
+			cb?.({ ok: true, snap: fresh });
 		});
 
 		socket.on('game:finish', ({ gameId } = {}, cb) => {
