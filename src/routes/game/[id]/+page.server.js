@@ -10,7 +10,7 @@ function loadGame(params, locals) {
 }
 
 export function load({ params, locals }) {
-	if (!locals.member) throw redirect(302, '/');
+	if (!locals.member) throw redirect(302, locals.user ? '/midgard' : '/');
 	const snap = loadGame(params, locals);
 	const notes = Object.fromEntries(ROUND_OBJECTIVES.map((r) => [r.number, r.note]));
 	const rounds = snap.rounds.map((r) => ({ ...r, note: notes[r.number] || null }));

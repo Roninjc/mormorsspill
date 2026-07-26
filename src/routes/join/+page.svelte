@@ -1,10 +1,10 @@
 <script>
-	import AvatarPicker from '$lib/AvatarPicker.svelte';
+	import Avatar from '$lib/Avatar.svelte';
 	let { data, form } = $props();
 </script>
 
 <div class="topbar">
-	<a class="brand" href="/">← Mormorsspill</a>
+	<a class="brand" href="/midgard">← Midgard</a>
 </div>
 
 <h1>Unirse a una Ætt</h1>
@@ -20,20 +20,30 @@
 		style="text-transform: uppercase; letter-spacing: 0.15em; font-family: var(--font-display)"
 		placeholder="XXXXXX"
 		value={form?.code || data?.prefillCode || ''}
+		autofocus
 		required
 	/>
 
-	<label for="name">Tu nombre</label>
-	<input id="name" name="name" type="text" placeholder="Tu nombre" required />
-
-	<label>Tu avatar</label>
-	<AvatarPicker />
-
-	<label for="pin">Elige tu PIN (4 dígitos)</label>
-	<input id="pin" name="pin" type="password" inputmode="numeric" maxlength="4" placeholder="****" required />
+	<div class="as-you">
+		<Avatar id={data.profile.avatar} size={40} />
+		<span class="small">Te unes como <strong>{data.profile.display_name}</strong></span>
+	</div>
 
 	{#if form?.error}<p class="error">{form.error}</p>{/if}
 
 	<div style="height: 12px"></div>
 	<button class="btn btn-gold" type="submit">Entrar en la Ætt</button>
 </form>
+
+<style>
+	.as-you {
+		display: flex;
+		align-items: center;
+		gap: 10px;
+		padding: 10px 12px;
+		background: var(--fjord-elev);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		margin: 8px 0 4px;
+	}
+</style>

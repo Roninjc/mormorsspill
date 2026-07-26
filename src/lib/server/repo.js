@@ -1,10 +1,91 @@
 import { db } from './db.js';
-import { hashPin, generateInviteCode } from './auth.js';
+import { hashPin, verifyPin, generateInviteCode } from './auth.js';
 import { ROUND_OBJECTIVES, TOTAL_ROUNDS, computeStandings } from '../rules.js';
 
-// ---------- Ætt (space) + members + guests ----------
+// ---------- Users (global identity) ----------
 
-export function createSpace({ name, memberName, avatar, pin }) {
+export function createUser({ name, avatar, pin }) {
+	return db
+		.prepare('INSERT INTO user (display_name, avatar, pin_hash) VALUES (?, ?, ?) RETURNING *')
+		.get(name, avatar || null, hashPin(pin));
+}
+
+export function getUser(id) {
+	return db.prepare('SELECT * FROM user WHERE id = ?').get(id);
+}
+
+/** For the login picker: every profile on this server. */
+export function listUsers() {
+	return db.prepare('SELECT id, display_name, avatar FROM user ORDER BY display_name').all();
+}
+
+/** Case-insensitive lookup used to keep names unique at registration. */
+export function getUserByName(name) {
+	return db
+		.prepare('SELECT * FROM user WHERE lower(display_name) = lower(?)')
+		.get(String(name || '').trim());
+}
+
+/** Login by name + PIN. Returns the user only if a name match verifies the PIN. */
+export function findUserByCredentials(name, pin) {
+	const candidates = db
+		.prepare('SELECT * FROM user WHERE lower(display_name) = lower(?)')
+		.all(String(name || '').trim());
+	for (const u of candidates) {
+		if (verifyPin(pin, u.pin_hash)) return u;
+	}
+	return null;
+}
+
+/** Updates the global profile and propagates it to every membership + game history. */
+export function updateUserProfile(userId, { name, avatar }) {
+	db.transaction(() => {
+		db.prepare('UPDATE user SET display_name = ?, avatar = ? WHERE id = ?').run(
+			name,
+			avatar || null,
+			userId
+		);
+		db.prepare('UPDATE member SET display_name = ?, avatar = ? WHERE user_id = ?').run(
+			name,
+			avatar || null,
+			userId
+		);
+	})();
+	return getUser(userId);
+}
+
+export function changeUserPin(userId, pin) {
+	db.prepare('UPDATE user SET pin_hash = ? WHERE id = ?').run(hashPin(pin), userId);
+}
+
+// ---------- Ætt (space) + memberships + guests ----------
+
+/** Creates a membership row (a user's seat in an Ætt), denormalizing their profile. */
+function insertMembership(userId, spaceId) {
+	const u = getUser(userId);
+	return db
+		.prepare(
+			"INSERT INTO member (space_id, user_id, display_name, avatar, pin_hash) VALUES (?, ?, ?, ?, '') RETURNING *"
+		)
+		.get(spaceId, userId, u.display_name, u.avatar || null);
+}
+
+export function getMembership(userId, spaceId) {
+	return db.prepare('SELECT * FROM member WHERE user_id = ? AND space_id = ?').get(userId, spaceId);
+}
+
+/** The Ætts a user belongs to, for the Midgard hub. */
+export function listUserSpaces(userId) {
+	return db
+		.prepare(
+			`SELECT s.id, s.name, s.invite_code, m.id AS member_id
+			 FROM member m JOIN space s ON s.id = m.space_id
+			 WHERE m.user_id = ? ORDER BY s.name`
+		)
+		.all(userId);
+}
+
+export function createSpace({ name, userId }) {
 	const tx = db.transaction(() => {
 		let code;
 		for (let i = 0; i < 5; i++) {
@@ -14,11 +95,7 @@ export function createSpace({ name, memberName, avatar, pin }) {
 		const space = db
 			.prepare('INSERT INTO space (name, invite_code) VALUES (?, ?) RETURNING *')
 			.get(name, code);
-		const member = db
-			.prepare(
-				'INSERT INTO member (space_id, display_name, avatar, pin_hash) VALUES (?, ?, ?, ?) RETURNING *'
-			)
-			.get(space.id, memberName, avatar || null, hashPin(pin));
+		const member = insertMembership(userId, space.id);
 		return { space, member };
 	});
 	return tx();
@@ -34,14 +111,11 @@ export function getSpace(id) {
 	return db.prepare('SELECT * FROM space WHERE id = ?').get(id);
 }
 
-export function joinSpace({ code, name, avatar, pin }) {
+/** Adds a user to the Ætt with the given code (idempotent if already a member). */
+export function joinSpace({ code, userId }) {
 	const space = getSpaceByCode(code);
 	if (!space) return null;
-	const member = db
-		.prepare(
-			'INSERT INTO member (space_id, display_name, avatar, pin_hash) VALUES (?, ?, ?, ?) RETURNING *'
-		)
-		.get(space.id, name, avatar || null, hashPin(pin));
+	const member = getMembership(userId, space.id) || insertMembership(userId, space.id);
 	return { space, member };
 }
 
@@ -61,32 +135,26 @@ export function listGuests(spaceId) {
 		.all(spaceId);
 }
 
-/** For the login picker: all members grouped by Ætt. */
-export function listSpacesWithMembers() {
-	const spaces = db.prepare('SELECT id, name FROM space ORDER BY name').all();
-	return spaces.map((s) => ({ ...s, members: listMembers(s.id) }));
-}
-
 export function createGuest(spaceId, { name, avatar }) {
 	return db
 		.prepare('INSERT INTO guest (space_id, display_name, avatar) VALUES (?, ?, ?) RETURNING *')
 		.get(spaceId, name, avatar || null);
 }
 
-/** Promotes a guest to member and migrates their participation history. */
+/** Promotes a guest to a full account (user + membership), keeping their history. */
 export function promoteGuest(guestId, { pin }) {
 	const guest = db.prepare('SELECT * FROM guest WHERE id = ?').get(guestId);
 	if (!guest) return null;
 	const tx = db.transaction(() => {
-		const member = db
-			.prepare(
-				'INSERT INTO member (space_id, display_name, avatar, pin_hash) VALUES (?, ?, ?, ?) RETURNING *'
-			)
-			.get(guest.space_id, guest.display_name, guest.avatar, hashPin(pin));
-		// repoint the guest's historical participations to the new member
-		db.prepare(
-			'UPDATE participant SET member_id = ?, guest_id = NULL WHERE guest_id = ?'
-		).run(member.id, guestId);
+		const user = db
+			.prepare('INSERT INTO user (display_name, avatar, pin_hash) VALUES (?, ?, ?) RETURNING *')
+			.get(guest.display_name, guest.avatar, hashPin(pin));
+		const member = insertMembership(user.id, guest.space_id);
+		// repoint the guest's historical participations to the new membership
+		db.prepare('UPDATE participant SET member_id = ?, guest_id = NULL WHERE guest_id = ?').run(
+			member.id,
+			guestId
+		);
 		db.prepare('DELETE FROM guest WHERE id = ?').run(guestId);
 		return member;
 	});

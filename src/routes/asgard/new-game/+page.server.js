@@ -2,7 +2,7 @@ import { fail, redirect } from '@sveltejs/kit';
 import { listMembers, listGuests, createGame } from '$lib/server/repo.js';
 
 export function load({ locals }) {
-	if (!locals.member) throw redirect(302, '/');
+	if (!locals.member) throw redirect(302, locals.user ? '/midgard' : '/');
 	return {
 		members: listMembers(locals.space.id),
 		guests: listGuests(locals.space.id)
@@ -11,7 +11,7 @@ export function load({ locals }) {
 
 export const actions = {
 	default: async ({ request, locals }) => {
-		if (!locals.member) throw redirect(302, '/');
+		if (!locals.member) throw redirect(302, locals.user ? '/midgard' : '/');
 		const form = await request.formData();
 		const selected = form.getAll('p').map(String);
 		const singleScorer = form.get('singleScorer') === 'on';

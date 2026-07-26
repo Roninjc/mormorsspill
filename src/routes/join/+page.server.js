@@ -1,26 +1,25 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { joinSpace, getSpaceByCode } from '$lib/server/repo.js';
-import { setSession } from '$lib/server/session.js';
+import { setActiveSpace } from '$lib/server/session.js';
 
-export function load({ url }) {
-	return { prefillCode: (url.searchParams.get('code') || '').toUpperCase() };
+export function load({ locals, url }) {
+	if (!locals.user) throw redirect(302, '/login');
+	return {
+		prefillCode: (url.searchParams.get('code') || '').toUpperCase(),
+		profile: { display_name: locals.user.display_name, avatar: locals.user.avatar }
+	};
 }
 
 export const actions = {
-	default: async ({ request, cookies }) => {
+	default: async ({ request, locals, cookies }) => {
+		if (!locals.user) throw redirect(302, '/login');
 		const form = await request.formData();
 		const code = String(form.get('code') || '').trim().toUpperCase();
-		const name = String(form.get('name') || '').trim();
-		const avatar = String(form.get('avatar') || '').trim();
-		const pin = String(form.get('pin') || '').trim();
-
 		if (!getSpaceByCode(code)) return fail(400, { error: 'Código de invitación no válido', code });
-		if (!name) return fail(400, { error: 'Falta tu nombre', code });
-		if (!/^\d{4}$/.test(pin)) return fail(400, { error: 'El PIN debe ser de 4 dígitos', code });
 
-		const res = joinSpace({ code, name, avatar, pin });
+		const res = joinSpace({ code, userId: locals.user.id });
 		if (!res) return fail(400, { error: 'No se pudo unir', code });
-		setSession(cookies, res.member.id);
+		setActiveSpace(cookies, res.space.id);
 		throw redirect(303, '/asgard');
 	}
 };

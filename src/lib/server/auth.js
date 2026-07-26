@@ -29,9 +29,9 @@ export function verifyPin(pin, stored) {
 	return candidate.length === expected.length && timingSafeEqual(candidate, expected);
 }
 
-// --- Signed session (memberId.HMAC) ---
-export function signSession(memberId) {
-	const payload = String(memberId);
+// --- Signed session (userId.HMAC) ---
+export function signSession(userId) {
+	const payload = String(userId);
 	const sig = createHmac('sha256', SECRET).update(payload).digest('base64url');
 	return `${payload}.${sig}`;
 }

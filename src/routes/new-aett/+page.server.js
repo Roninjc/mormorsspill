@@ -1,20 +1,21 @@
 import { fail, redirect } from '@sveltejs/kit';
 import { createSpace } from '$lib/server/repo.js';
-import { setSession } from '$lib/server/session.js';
+import { setActiveSpace } from '$lib/server/session.js';
+
+export function load({ locals }) {
+	if (!locals.user) throw redirect(302, '/login');
+	return { profile: { display_name: locals.user.display_name, avatar: locals.user.avatar } };
+}
 
 export const actions = {
-	default: async ({ request, cookies }) => {
+	default: async ({ request, locals, cookies }) => {
+		if (!locals.user) throw redirect(302, '/login');
 		const form = await request.formData();
 		const name = String(form.get('name') || '').trim();
-		const memberName = String(form.get('memberName') || '').trim();
-		const avatar = String(form.get('avatar') || '').trim();
-		const pin = String(form.get('pin') || '').trim();
+		if (!name) return fail(400, { error: 'Falta el nombre de la Ætt' });
 
-		if (!name || !memberName) return fail(400, { error: 'Faltan nombres' });
-		if (!/^\d{4}$/.test(pin)) return fail(400, { error: 'El PIN debe ser de 4 dígitos' });
-
-		const { member } = createSpace({ name, memberName, avatar, pin });
-		setSession(cookies, member.id);
+		const { space } = createSpace({ name, userId: locals.user.id });
+		setActiveSpace(cookies, space.id);
 		throw redirect(303, '/asgard');
 	}
 };

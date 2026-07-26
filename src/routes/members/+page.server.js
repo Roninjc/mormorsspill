@@ -9,7 +9,7 @@ import {
 } from '$lib/server/repo.js';
 
 export function load({ locals, url }) {
-	if (!locals.member) throw redirect(302, '/');
+	if (!locals.member) throw redirect(302, locals.user ? '/midgard' : '/');
 	const space = getSpace(locals.space.id);
 	return {
 		members: listMembers(space.id),
@@ -22,7 +22,7 @@ export function load({ locals, url }) {
 
 export const actions = {
 	addGuest: async ({ request, locals }) => {
-		if (!locals.member) throw redirect(302, '/');
+		if (!locals.member) throw redirect(302, locals.user ? '/midgard' : '/');
 		const form = await request.formData();
 		const name = String(form.get('name') || '').trim();
 		const avatar = String(form.get('avatar') || '').trim();
@@ -32,7 +32,7 @@ export const actions = {
 	},
 
 	promote: async ({ request, locals }) => {
-		if (!locals.member) throw redirect(302, '/');
+		if (!locals.member) throw redirect(302, locals.user ? '/midgard' : '/');
 		const form = await request.formData();
 		const guestId = Number(form.get('guestId'));
 		const pin = String(form.get('pin') || '').trim();
@@ -42,7 +42,7 @@ export const actions = {
 	},
 
 	toggleGuests: async ({ locals }) => {
-		if (!locals.member) throw redirect(302, '/');
+		if (!locals.member) throw redirect(302, locals.user ? '/midgard' : '/');
 		const space = getSpace(locals.space.id);
 		setIncludeGuests(locals.space.id, !space.include_guests_in_rankings);
 		return { toggled: true };

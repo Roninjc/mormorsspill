@@ -17,12 +17,10 @@
 </script>
 
 <div class="topbar">
-	<span class="brand">⚔ Asgard</span>
+	<a class="brand" href="/midgard" title="Volver a Midgard">🌳 <span style="color: var(--gold)">Asgard</span></a>
 	<div class="row">
 		<a class="pill" href="/members">👥 Ætt</a>
-		<form method="POST" action="/logout">
-			<button class="pill" type="submit" style="cursor: pointer">Salir</button>
-		</form>
+		<a class="pill" href="/midgard">Midgard</a>
 	</div>
 </div>
 

@@ -20,9 +20,22 @@ CREATE TABLE IF NOT EXISTS space (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
+-- A person: one global identity (name, avatar, PIN) that can belong to several Ætts.
+CREATE TABLE IF NOT EXISTS user (
+  id INTEGER PRIMARY KEY,
+  display_name TEXT NOT NULL,
+  avatar TEXT,
+  pin_hash TEXT NOT NULL,
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+-- A membership: a user's seat in a given Ætt. display_name/avatar are denormalized
+-- copies of the user's profile (kept in sync) so game/ranking queries stay simple.
+-- pin_hash is vestigial (auth lives on user) and is '' for new memberships.
 CREATE TABLE IF NOT EXISTS member (
   id INTEGER PRIMARY KEY,
   space_id INTEGER NOT NULL REFERENCES space(id),
+  user_id INTEGER REFERENCES user(id),
   display_name TEXT NOT NULL,
   avatar TEXT,
   pin_hash TEXT NOT NULL,
@@ -96,3 +109,35 @@ CREATE INDEX IF NOT EXISTS idx_event_game ON event(game_id);
 `;
 
 db.exec(SCHEMA);
+
+/**
+ * Migrates pre-account databases (member held identity + PIN) to the user model.
+ * Idempotent: safe to run on every boot. Each legacy member without a user_id
+ * gets its own user carrying its name/avatar/PIN (global-profile, 1:1 — nobody
+ * could belong to two Ætts before, so there is nothing to deduplicate).
+ */
+function migrate() {
+	const hasUserId = db
+		.prepare('PRAGMA table_info(member)')
+		.all()
+		.some((c) => c.name === 'user_id');
+	if (!hasUserId) {
+		db.exec('ALTER TABLE member ADD COLUMN user_id INTEGER REFERENCES user(id)');
+	}
+	const orphans = db.prepare('SELECT * FROM member WHERE user_id IS NULL').all();
+	if (orphans.length) {
+		const insUser = db.prepare(
+			'INSERT INTO user (display_name, avatar, pin_hash) VALUES (?, ?, ?) RETURNING id'
+		);
+		const setUser = db.prepare('UPDATE member SET user_id = ? WHERE id = ?');
+		db.transaction(() => {
+			for (const m of orphans) {
+				const { id } = insUser.get(m.display_name, m.avatar, m.pin_hash);
+				setUser.run(id, m.id);
+			}
+		})();
+	}
+	db.exec('CREATE INDEX IF NOT EXISTS idx_member_user ON member(user_id)');
+}
+
+migrate();
