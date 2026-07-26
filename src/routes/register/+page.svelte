@@ -1,11 +1,12 @@
 <script>
 	import AvatarPicker from '$lib/AvatarPicker.svelte';
 	import BackLink from '$lib/BackLink.svelte';
-	let { form } = $props();
+	let { data, form } = $props();
+	const next = $derived(form?.next ?? data?.next ?? '');
 </script>
 
 <div class="topbar">
-	<BackLink href="/login" label="Entrar" />
+	<BackLink href={next ? `/login?next=${encodeURIComponent(next)}` : '/login'} label="Entrar" />
 	<a class="close-btn" href="/" aria-label="Cerrar">✕</a>
 </div>
 
@@ -15,6 +16,7 @@
 </div>
 
 <form method="POST" class="card">
+	{#if next}<input type="hidden" name="next" value={next} />{/if}
 	<label for="name">Tu nombre</label>
 	<input
 		id="name"

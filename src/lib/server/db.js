@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS guest (
   space_id INTEGER NOT NULL REFERENCES space(id),
   display_name TEXT NOT NULL,
   avatar TEXT,
+  hidden INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -123,6 +124,13 @@ function migrate() {
 		.some((c) => c.name === 'user_id');
 	if (!hasUserId) {
 		db.exec('ALTER TABLE member ADD COLUMN user_id INTEGER REFERENCES user(id)');
+	}
+	const hasHidden = db
+		.prepare('PRAGMA table_info(guest)')
+		.all()
+		.some((c) => c.name === 'hidden');
+	if (!hasHidden) {
+		db.exec('ALTER TABLE guest ADD COLUMN hidden INTEGER NOT NULL DEFAULT 0');
 	}
 	const orphans = db.prepare('SELECT * FROM member WHERE user_id IS NULL').all();
 	if (orphans.length) {

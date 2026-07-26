@@ -154,10 +154,33 @@ export function listMembers(spaceId) {
 		.all(spaceId);
 }
 
+/** Visible (non-hidden) guests — used for game setup and rankings. */
 export function listGuests(spaceId) {
 	return db
-		.prepare('SELECT id, display_name, avatar FROM guest WHERE space_id = ? ORDER BY display_name')
+		.prepare(
+			'SELECT id, display_name, avatar FROM guest WHERE space_id = ? AND hidden = 0 ORDER BY display_name'
+		)
 		.all(spaceId);
+}
+
+/** Guests with a games-played count, filtered by hidden flag (for settings). */
+export function listGuestsDetailed(spaceId, hidden = 0) {
+	return db
+		.prepare(
+			`SELECT g.id, g.display_name, g.avatar,
+			        (SELECT COUNT(*) FROM participant p WHERE p.guest_id = g.id) AS games
+			 FROM guest g WHERE g.space_id = ? AND g.hidden = ? ORDER BY g.display_name`
+		)
+		.all(spaceId, hidden ? 1 : 0);
+}
+
+/** Hides/unhides a guest: keeps data but removes them from lists and rankings. */
+export function setGuestHidden(guestId, spaceId, hidden) {
+	db.prepare('UPDATE guest SET hidden = ? WHERE id = ? AND space_id = ?').run(
+		hidden ? 1 : 0,
+		guestId,
+		spaceId
+	);
 }
 
 export function createGuest(spaceId, { name, avatar }) {
@@ -184,6 +207,66 @@ export function promoteGuest(guestId, { pin }) {
 		return member;
 	});
 	return tx();
+}
+
+/**
+ * Permanently deletes an Ætt and everything under it (games, rounds, scores,
+ * events, memberships, guests). Users are kept — they may belong to other Ætts;
+ * only their membership rows for this space are removed.
+ */
+export function deleteSpace(spaceId) {
+	const tx = db.transaction(() => {
+		const games = db.prepare('SELECT id FROM game WHERE space_id = ?').all(spaceId).map((g) => g.id);
+		if (games.length) {
+			const ph = games.map(() => '?').join(',');
+			db.prepare(
+				`DELETE FROM score WHERE round_id IN (SELECT id FROM round WHERE game_id IN (${ph}))`
+			).run(...games);
+			db.prepare(`DELETE FROM round WHERE game_id IN (${ph})`).run(...games);
+			db.prepare(`DELETE FROM participant WHERE game_id IN (${ph})`).run(...games);
+			db.prepare(`DELETE FROM event WHERE game_id IN (${ph})`).run(...games);
+			db.prepare('DELETE FROM game WHERE space_id = ?').run(spaceId);
+		}
+		db.prepare('DELETE FROM member WHERE space_id = ?').run(spaceId);
+		db.prepare('DELETE FROM guest WHERE space_id = ?').run(spaceId);
+		db.prepare('DELETE FROM space WHERE id = ?').run(spaceId);
+	});
+	tx();
+}
+
+/**
+ * Merges a guest into an existing member (same person). The guest's game history
+ * is repointed to the member and the guest is deleted. Deliberate action taken
+ * from settings — never auto-inferred from a name match.
+ */
+export function unifyGuestIntoMember(guestId, memberId, spaceId) {
+	const guest = db.prepare('SELECT * FROM guest WHERE id = ? AND space_id = ?').get(guestId, spaceId);
+	const member = db
+		.prepare('SELECT * FROM member WHERE id = ? AND space_id = ?')
+		.get(memberId, spaceId);
+	if (!guest || !member) return null;
+	const tx = db.transaction(() => {
+		db.prepare('UPDATE participant SET member_id = ?, guest_id = NULL WHERE guest_id = ?').run(
+			memberId,
+			guestId
+		);
+		db.prepare('DELETE FROM guest WHERE id = ?').run(guestId);
+	});
+	tx();
+	return member;
+}
+
+/**
+ * Deletes a guest. Refuses if the guest already played games (would corrupt
+ * history) — those should be unified into a member instead.
+ */
+export function deleteGuest(guestId, spaceId) {
+	const guest = db.prepare('SELECT * FROM guest WHERE id = ? AND space_id = ?').get(guestId, spaceId);
+	if (!guest) return { ok: false, reason: 'not_found' };
+	const plays = db.prepare('SELECT COUNT(*) AS c FROM participant WHERE guest_id = ?').get(guestId).c;
+	if (plays > 0) return { ok: false, reason: 'has_games' };
+	db.prepare('DELETE FROM guest WHERE id = ?').run(guestId);
+	return { ok: true };
 }
 
 export function setIncludeGuests(spaceId, include) {
@@ -232,7 +315,8 @@ export function listParticipants(gameId) {
 			`SELECT p.id, p.seat, p.member_id, p.guest_id,
 			        COALESCE(m.display_name, g.display_name) AS name,
 			        COALESCE(m.avatar, g.avatar) AS avatar,
-			        (p.guest_id IS NOT NULL) AS is_guest
+			        (p.guest_id IS NOT NULL) AS is_guest,
+			        g.hidden AS guest_hidden
 			 FROM participant p
 			 LEFT JOIN member m ON m.id = p.member_id
 			 LEFT JOIN guest g ON g.id = p.guest_id
@@ -360,7 +444,8 @@ export function getRanking(spaceId) {
 		for (const row of snap.standings) {
 			const p = snap.participants.find((x) => x.id === row.id);
 			if (!p) continue;
-			if (p.is_guest && !includeGuests) continue;
+			// Hidden guests never count; other guests only if the toggle is on.
+			if (p.is_guest && (p.guest_hidden || !includeGuests)) continue;
 			const key = p.member_id ? `m:${p.member_id}` : `g:${p.guest_id}`;
 			if (!agg.has(key)) {
 				agg.set(key, {

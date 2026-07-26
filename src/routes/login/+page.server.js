@@ -2,9 +2,14 @@ import { fail, redirect } from '@sveltejs/kit';
 import { findUserByCredentials } from '$lib/server/repo.js';
 import { setSession } from '$lib/server/session.js';
 
-export function load({ locals }) {
+/** Only allow local same-site redirect targets (avoid open redirects). */
+function safeNext(v) {
+	return typeof v === 'string' && v.startsWith('/') && !v.startsWith('//') ? v : null;
+}
+
+export function load({ locals, url }) {
 	if (locals.user) throw redirect(302, '/midgard');
-	return {};
+	return { next: safeNext(url.searchParams.get('next')) };
 }
 
 export const actions = {
@@ -12,10 +17,11 @@ export const actions = {
 		const form = await request.formData();
 		const name = String(form.get('name') || '').trim();
 		const pin = String(form.get('pin') || '').trim();
-		if (!name || !pin) return fail(400, { error: 'Escribe tu nombre y tu PIN', name });
+		const next = safeNext(String(form.get('next') || ''));
+		if (!name || !pin) return fail(400, { error: 'Escribe tu nombre y tu PIN', name, next });
 		const user = findUserByCredentials(name, pin);
-		if (!user) return fail(401, { error: 'Nombre o PIN incorrecto', name });
+		if (!user) return fail(401, { error: 'Nombre o PIN incorrecto', name, next });
 		setSession(cookies, user.id);
-		throw redirect(303, '/midgard');
+		throw redirect(303, next || '/midgard');
 	}
 };

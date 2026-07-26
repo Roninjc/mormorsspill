@@ -1,5 +1,6 @@
 <script>
-	let { form } = $props();
+	let { data, form } = $props();
+	const next = $derived(form?.next ?? data?.next ?? '');
 </script>
 
 <div class="topbar">
@@ -12,6 +13,7 @@
 </div>
 
 <form method="POST" class="card">
+	{#if next}<input type="hidden" name="next" value={next} />{/if}
 	<label for="name">Tu nombre</label>
 	<input
 		id="name"
@@ -44,7 +46,9 @@
 </form>
 
 <div class="center" style="margin-top: 16px">
-	<a class="found" href="/register">¿Primera vez? Crea tu perfil</a>
+	<a class="found" href={next ? `/register?next=${encodeURIComponent(next)}` : '/register'}>
+		¿Primera vez? Crea tu perfil
+	</a>
 </div>
 
 <style>

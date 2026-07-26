@@ -24,6 +24,9 @@
 		display: inline-flex;
 		align-items: center;
 		gap: 6px;
+		/* Match the round icon buttons so the top bar has the same height on every
+		   screen (with or without a right-side control) and the arrow lines up. */
+		min-height: 34px;
 		font-family: var(--font-display);
 		text-transform: uppercase;
 		letter-spacing: 0.12em;

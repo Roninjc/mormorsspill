@@ -24,7 +24,7 @@
 
 <div class="topbar">
 	<BackLink href="/midgard" label="Midgard" />
-	<a class="close-btn" href="/members" aria-label="Ajustes del Ætt" title="Ajustes del Ætt">
+	<a class="close-btn" href="/settings" aria-label="Ajustes del Ætt" title="Ajustes del Ætt">
 		<svg
 			width="17"
 			height="17"

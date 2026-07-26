@@ -3,9 +3,14 @@ import { joinSpace, getSpaceByCode } from '$lib/server/repo.js';
 import { setActiveSpace } from '$lib/server/session.js';
 
 export function load({ locals, url }) {
-	if (!locals.user) throw redirect(302, '/login');
+	const code = (url.searchParams.get('code') || '').toUpperCase();
+	if (!locals.user) {
+		// Preserve the invite code through login/registration so a scanned QR still works.
+		const next = '/join' + (code ? `?code=${encodeURIComponent(code)}` : '');
+		throw redirect(302, `/login?next=${encodeURIComponent(next)}`);
+	}
 	return {
-		prefillCode: (url.searchParams.get('code') || '').toUpperCase(),
+		prefillCode: code,
 		profile: { display_name: locals.user.display_name, avatar: locals.user.avatar }
 	};
 }
