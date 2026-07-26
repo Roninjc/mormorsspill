@@ -75,7 +75,10 @@ a {
 .app {
 	max-width: 560px;
 	margin: 0 auto;
-	padding: 16px 16px calc(104px + env(safe-area-inset-bottom));
+	/* Respect the iPhone safe areas (notch / status bar / home indicator). These
+	   env() values are 0 outside notched devices, so nothing changes on desktop. */
+	padding: calc(16px + env(safe-area-inset-top)) max(16px, env(safe-area-inset-right))
+		calc(104px + env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
 	min-height: 100dvh;
 }
 
@@ -233,7 +236,8 @@ select:focus {
 	left: 0;
 	right: 0;
 	bottom: 0;
-	padding: 14px 16px calc(16px + env(safe-area-inset-bottom));
+	padding: 14px max(16px, env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom))
+		max(16px, env(safe-area-inset-left));
 	background: linear-gradient(180deg, rgba(11, 22, 34, 0), var(--fjord) 42%);
 	display: flex;
 	justify-content: center;

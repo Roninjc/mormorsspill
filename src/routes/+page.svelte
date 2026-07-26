@@ -84,8 +84,8 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		/* Neutralize the .app wrapper padding (16px sides, 104px bottom) so the gate centers */
-		margin: -16px -16px calc(-104px - env(safe-area-inset-bottom));
+		/* Neutralize the .app wrapper padding (incl. safe-area insets) so the gate centers */
+		margin: calc(-16px - env(safe-area-inset-top)) -16px calc(-104px - env(safe-area-inset-bottom));
 		padding: 40px 22px;
 	}
 
