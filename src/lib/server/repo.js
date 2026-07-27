@@ -414,6 +414,29 @@ export function getActiveGame(spaceId) {
 		.get(spaceId);
 }
 
+/** All in-progress games in a space (several can run at once). */
+export function listActiveGames(spaceId) {
+	return db
+		.prepare(
+			`SELECT * FROM game WHERE space_id = ? AND status = 'in_progress' ORDER BY started_at DESC`
+		)
+		.all(spaceId);
+}
+
+/** Permanently deletes a game and its rounds/scores/participants/events. */
+export function deleteGame(gameId) {
+	const tx = db.transaction(() => {
+		db.prepare('DELETE FROM score WHERE round_id IN (SELECT id FROM round WHERE game_id = ?)').run(
+			gameId
+		);
+		db.prepare('DELETE FROM round WHERE game_id = ?').run(gameId);
+		db.prepare('DELETE FROM participant WHERE game_id = ?').run(gameId);
+		db.prepare('DELETE FROM event WHERE game_id = ?').run(gameId);
+		db.prepare('DELETE FROM game WHERE id = ?').run(gameId);
+	});
+	tx();
+}
+
 // ---------- Stats (Asgard) ----------
 
 export function listRecentGames(spaceId, limit = 10) {

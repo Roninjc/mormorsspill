@@ -1,5 +1,5 @@
 import { Server } from 'socket.io';
-import { getGameSnapshot, saveRoundScores, finishGame, getActiveGame } from './repo.js';
+import { getGameSnapshot, saveRoundScores, finishGame, getActiveGame, deleteGame } from './repo.js';
 import { isValidScore, FAILED_LAYDOWN_PENALTY } from '../rules.js';
 
 let io;
@@ -64,8 +64,24 @@ export function injectSocketIO(httpServer) {
 			const snap = getGameSnapshot(gameId);
 			if (!snap) return cb?.({ ok: false });
 			finishGame(gameId);
+			const spaceId = snap.game.space_id;
 			io.to(`game:${gameId}`).emit('game:state', getGameSnapshot(gameId));
-			io.to(`space:${snap.game.space_id}`).emit('presence:update', { activeGameId: null });
+			io.to(`space:${spaceId}`).emit('presence:update', {
+				activeGameId: getActiveGame(spaceId)?.id ?? null
+			});
+			cb?.({ ok: true });
+		});
+
+		// Discard an in-progress game entirely (no result recorded).
+		socket.on('game:delete', ({ gameId } = {}, cb) => {
+			const snap = getGameSnapshot(gameId);
+			if (!snap) return cb?.({ ok: false });
+			const spaceId = snap.game.space_id;
+			deleteGame(gameId);
+			io.to(`game:${gameId}`).emit('game:deleted', { gameId });
+			io.to(`space:${spaceId}`).emit('presence:update', {
+				activeGameId: getActiveGame(spaceId)?.id ?? null
+			});
 			cb?.({ ok: true });
 		});
 

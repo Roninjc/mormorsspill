@@ -1,19 +1,19 @@
 <script>
 	import { onMount } from 'svelte';
+	import { invalidateAll } from '$app/navigation';
 	import Avatar from '$lib/Avatar.svelte';
 	import BackLink from '$lib/BackLink.svelte';
 	import { getSocket } from '$lib/socketClient.js';
 	let { data } = $props();
 	const medals = ['🥇', '🥈', '🥉'];
 
-	let activeGameId = $state(data.activeGame?.id ?? null);
-
 	onMount(() => {
 		const socket = getSocket();
 		const joinSpace = () => socket.emit('space:join', { spaceId: data.space?.id });
 		joinSpace();
 		socket.on('connect', joinSpace); // re-join after any reconnect
-		const onPresence = ({ activeGameId: id }) => (activeGameId = id);
+		// A game started / finished / was discarded → refresh the in-progress list.
+		const onPresence = () => invalidateAll();
 		socket.on('presence:update', onPresence);
 		return () => {
 			socket.off('connect', joinSpace);
@@ -55,36 +55,30 @@
 	</div>
 </div>
 
-{#if activeGameId}
-	<a class="live-game" href="/game/{activeGameId}">
+{#each data.activeGames as game}
+	<a class="live-game" href="/game/{game.id}">
 		<div class="lg-top">
 			<span class="lg-live"><span class="dot-live"></span> En juego</span>
-			{#if data.activeGame && data.activeGame.id === activeGameId}
-				<span class="lg-round">Ronda {data.activeGame.round} / {data.activeGame.totalRounds}</span>
-			{:else}
-				<span class="lg-go">Continuar →</span>
-			{/if}
+			<span class="lg-round">Ronda {game.round} / {game.totalRounds}</span>
 		</div>
-		{#if data.activeGame && data.activeGame.id === activeGameId}
-			<div class="lg-players">
-				{#each data.activeGame.players as p}
-					<div class="lg-player">
-						<Avatar id={p.avatar} size={46} />
-						<span class="lg-player-name">{p.name}</span>
-					</div>
-				{/each}
-			</div>
-			<div class="lg-cta">
-				{#if data.activeGame.leaderName}
-					<span class="lg-leader">Al frente: <strong>{data.activeGame.leaderName}</strong></span>
-				{:else}
-					<span class="lg-leader">{data.activeGame.players.length} jugadores</span>
-				{/if}
-				<span class="lg-go">Continuar →</span>
-			</div>
-		{/if}
+		<div class="lg-players">
+			{#each game.players as p}
+				<div class="lg-player">
+					<Avatar id={p.avatar} size={46} />
+					<span class="lg-player-name">{p.name}</span>
+				</div>
+			{/each}
+		</div>
+		<div class="lg-cta">
+			{#if game.leaderName}
+				<span class="lg-leader">Al frente: <strong>{game.leaderName}</strong></span>
+			{:else}
+				<span class="lg-leader">{game.players.length} jugadores</span>
+			{/if}
+			<span class="lg-go">Continuar →</span>
+		</div>
 	</a>
-{/if}
+{/each}
 
 {#if data.ranking.length > 0}
 	{@const leader = data.ranking[0]}
@@ -141,11 +135,7 @@
 <div class="center small muted version">Mormorsspill · {__APP_VERSION__}</div>
 
 <div class="actionbar">
-	{#if activeGameId}
-		<a class="btn btn-primary" href="/game/{activeGameId}">▶ Continuar partida</a>
-	{:else}
-		<a class="btn btn-primary" href="/asgard/new-game">▶ Empezar partida</a>
-	{/if}
+	<a class="btn btn-primary" href="/asgard/new-game">▶ Iniciar partida</a>
 </div>
 
 <style>
