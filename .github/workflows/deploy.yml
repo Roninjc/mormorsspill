@@ -47,10 +47,8 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script_stop: true
           script: |
-            docker image prune -f
-            docker builder prune -f
+            set -e
             docker compose -f /home/jake/compose.yml pull mormorsspill
             docker compose -f /home/jake/compose.yml up -d mormorsspill
-            docker image prune -f
+            docker image prune -f || true
