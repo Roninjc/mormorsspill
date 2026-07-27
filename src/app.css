@@ -300,6 +300,17 @@ input:-webkit-autofill:active {
 		transform: translateY(0);
 	}
 }
+.btn-primary.is-gleaming::after {
+	animation: ice-gleam 0.7s cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+@keyframes ice-gleam {
+	from {
+		transform: translateX(-220%) skewX(-18deg);
+	}
+	to {
+		transform: translateX(320%) skewX(-18deg);
+	}
+}
 .btn-gold {
 	background: linear-gradient(180deg, var(--gold-soft), var(--gold));
 	color: #2a1e05;
