@@ -91,38 +91,32 @@ a {
 	min-height: 100dvh;
 }
 
-@media (display-mode: standalone) {
-	.app::before,
-	.app::after {
-		content: '';
-		position: fixed;
-		left: 0;
-		right: 0;
-		z-index: 20;
-		pointer-events: none;
-		-webkit-backdrop-filter: blur(14px);
-		backdrop-filter: blur(14px);
-		transform: translateZ(0);
-		will-change: transform;
-	}
-	.app::before {
-		top: 0;
-		height: calc(env(safe-area-inset-top) * 1.7);
-		background: linear-gradient(to bottom, #0d1a27 40%, rgba(13, 26, 39, 0));
-		-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
-		mask-image: linear-gradient(to bottom, #000 55%, transparent);
-	}
-	.app::after {
-		bottom: 0;
-		height: calc(env(safe-area-inset-bottom) * 1.8);
-		background: linear-gradient(to top, var(--fjord) 40%, rgba(11, 22, 34, 0));
-		-webkit-mask-image: linear-gradient(to top, #000 55%, transparent);
-		mask-image: linear-gradient(to top, #000 55%, transparent);
-	}
-	.app.is-landing::before,
-	.app.is-landing::after {
-		display: none;
-	}
+.app::before,
+.app::after {
+	content: '';
+	position: fixed;
+	left: 0;
+	right: 0;
+	z-index: 20;
+	pointer-events: none;
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	transform: translateZ(0);
+	will-change: transform;
+}
+.app::before {
+	top: 0;
+	height: calc(env(safe-area-inset-top) * 1.7);
+	background: linear-gradient(to bottom, #0d1a27 40%, rgba(13, 26, 39, 0));
+	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
+	mask-image: linear-gradient(to bottom, #000 55%, transparent);
+}
+.app::after {
+	bottom: 0;
+	height: calc(env(safe-area-inset-bottom) * 1.8);
+	background: linear-gradient(to top, var(--fjord) 40%, rgba(11, 22, 34, 0));
+	-webkit-mask-image: linear-gradient(to top, #000 55%, transparent);
+	mask-image: linear-gradient(to top, #000 55%, transparent);
 }
 
 .topbar {
