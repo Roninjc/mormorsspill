@@ -25,22 +25,14 @@
 * {
 	box-sizing: border-box;
 }
-html {
-	background: var(--fjord);
-	overscroll-behavior: none;
-}
 html,
 body {
 	margin: 0;
 	padding: 0;
-	overscroll-behavior: none;
+	background: var(--fjord);
 }
 
 body {
-	background:
-		radial-gradient(1100px 520px at 50% -12%, #1a2c3f 0%, rgba(26, 44, 63, 0) 62%),
-		linear-gradient(180deg, #0d1a27 0%, var(--fjord) 55%);
-	background-attachment: fixed;
 	color: var(--frost);
 	font-family: var(--font-body);
 	min-height: 100dvh;
@@ -101,14 +93,14 @@ a {
 }
 .app::before {
 	top: 0;
-	height: calc(env(safe-area-inset-top) + 14px);
+	height: calc(env(safe-area-inset-top) * 1.5);
 	background: linear-gradient(to bottom, var(--fjord), rgba(11, 22, 34, 0));
 	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
 	mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
 .app::after {
 	bottom: 0;
-	height: calc(env(safe-area-inset-bottom) + 14px);
+	height: calc(env(safe-area-inset-bottom) * 1.6);
 	background: linear-gradient(to top, var(--fjord), rgba(11, 22, 34, 0));
 	-webkit-mask-image: linear-gradient(to top, #000 55%, transparent);
 	mask-image: linear-gradient(to top, #000 55%, transparent);
