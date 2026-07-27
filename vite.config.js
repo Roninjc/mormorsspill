@@ -38,6 +38,9 @@ export default defineConfig({
 		sveltekit(),
 		SvelteKitPWA({
 			registerType: 'autoUpdate',
+			workbox: {
+				navigateFallback: null
+			},
 			manifest: {
 				name: 'Mormorsspill',
 				short_name: 'Mormorsspill',
