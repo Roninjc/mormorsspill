@@ -9,6 +9,7 @@
 	<span class="band band-1"></span>
 	<span class="band band-2"></span>
 	<span class="band band-3"></span>
+	<span class="band band-4"></span>
 </div>
 
 <div class="bifrost">
@@ -38,42 +39,83 @@
 		overflow: hidden;
 		pointer-events: none;
 		z-index: 0;
+		-webkit-mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 68%, transparent);
+		mask-image: linear-gradient(to bottom, transparent, #000 14%, #000 68%, transparent);
 	}
 	.band {
 		position: absolute;
 		left: 50%;
-		top: -6%;
-		width: 120vw;
-		max-width: 1600px;
-		height: 44vh;
-		transform: translateX(-50%) rotate(-8deg);
-		border-radius: 50%;
-		filter: blur(52px);
+		top: -8%;
+		width: 130vw;
+		max-width: 1700px;
+		height: 56vh;
+		border-radius: 46% 54% 50% 50% / 60% 58% 42% 40%;
+		filter: blur(56px);
+		mix-blend-mode: screen;
+		will-change: transform, opacity;
 	}
 	.band-1 {
-		background: radial-gradient(closest-side, var(--good), transparent 72%);
-		opacity: 0.5;
-		animation: drift 14s ease-in-out infinite;
+		background: radial-gradient(closest-side, var(--good), transparent 68%);
+		opacity: 0.72;
+		animation: curtain-a 19s ease-in-out infinite;
 	}
 	.band-2 {
-		top: 2%;
-		background: radial-gradient(closest-side, var(--gold), transparent 72%);
-		opacity: 0.42;
-		animation: drift 18s ease-in-out infinite reverse;
+		background: radial-gradient(closest-side, var(--special), transparent 68%);
+		opacity: 0.58;
+		animation: curtain-b 25s ease-in-out infinite;
 	}
 	.band-3 {
-		top: 10%;
-		background: radial-gradient(closest-side, var(--blood), transparent 74%);
-		opacity: 0.34;
-		animation: drift 22s ease-in-out infinite;
+		background: radial-gradient(closest-side, var(--gold), transparent 70%);
+		opacity: 0.42;
+		animation: curtain-c 31s ease-in-out infinite;
 	}
-	@keyframes drift {
+	.band-4 {
+		background: radial-gradient(closest-side, var(--blood), transparent 72%);
+		opacity: 0.36;
+		animation: curtain-d 37s ease-in-out infinite;
+	}
+	@keyframes curtain-a {
 		0%,
 		100% {
-			transform: translateX(-54%) rotate(-8deg) scaleY(1);
+			transform: translateX(-56%) translateY(-3%) scale(1) rotate(-6deg);
+			opacity: 0.6;
 		}
 		50% {
-			transform: translateX(-46%) rotate(-4deg) scaleY(1.18);
+			transform: translateX(-45%) translateY(4%) scale(1.16) rotate(-2deg);
+			opacity: 0.82;
+		}
+	}
+	@keyframes curtain-b {
+		0%,
+		100% {
+			transform: translateX(-46%) translateY(3%) scale(1.12) rotate(4deg);
+			opacity: 0.44;
+		}
+		50% {
+			transform: translateX(-58%) translateY(-4%) scale(0.94) rotate(-4deg);
+			opacity: 0.66;
+		}
+	}
+	@keyframes curtain-c {
+		0%,
+		100% {
+			transform: translateX(-52%) translateY(-2%) scale(1.06) rotate(-3deg);
+			opacity: 0.34;
+		}
+		50% {
+			transform: translateX(-43%) translateY(5%) scale(1.24) rotate(2deg);
+			opacity: 0.52;
+		}
+	}
+	@keyframes curtain-d {
+		0%,
+		100% {
+			transform: translateX(-50%) translateY(4%) scale(1.2) rotate(5deg);
+			opacity: 0.28;
+		}
+		50% {
+			transform: translateX(-55%) translateY(-2%) scale(1) rotate(-5deg);
+			opacity: 0.44;
 		}
 	}
 
@@ -138,6 +180,7 @@
 	@media (prefers-reduced-motion: reduce) {
 		.band {
 			animation: none !important;
+			transform: translateX(-50%);
 		}
 	}
 </style>

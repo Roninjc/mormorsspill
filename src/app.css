@@ -40,6 +40,17 @@ body {
 	line-height: 1.5;
 }
 
+body::before {
+	content: '';
+	position: fixed;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+	background:
+		radial-gradient(1100px 520px at 50% -12%, #1a2c3f 0%, rgba(26, 44, 63, 0) 62%),
+		linear-gradient(180deg, #0d1a27 0%, var(--fjord) 55%);
+}
+
 h1,
 h2,
 h3,
@@ -88,20 +99,22 @@ a {
 	right: 0;
 	z-index: 20;
 	pointer-events: none;
-	-webkit-backdrop-filter: blur(12px);
-	backdrop-filter: blur(12px);
+	-webkit-backdrop-filter: blur(14px);
+	backdrop-filter: blur(14px);
+	transform: translateZ(0);
+	will-change: transform;
 }
 .app::before {
 	top: 0;
-	height: calc(env(safe-area-inset-top) * 1.5);
-	background: linear-gradient(to bottom, var(--fjord), rgba(11, 22, 34, 0));
+	height: calc(env(safe-area-inset-top) * 1.7);
+	background: linear-gradient(to bottom, #0d1a27 40%, rgba(13, 26, 39, 0));
 	-webkit-mask-image: linear-gradient(to bottom, #000 55%, transparent);
 	mask-image: linear-gradient(to bottom, #000 55%, transparent);
 }
 .app::after {
 	bottom: 0;
-	height: calc(env(safe-area-inset-bottom) * 1.6);
-	background: linear-gradient(to top, var(--fjord), rgba(11, 22, 34, 0));
+	height: calc(env(safe-area-inset-bottom) * 1.8);
+	background: linear-gradient(to top, var(--fjord) 40%, rgba(11, 22, 34, 0));
 	-webkit-mask-image: linear-gradient(to top, #000 55%, transparent);
 	mask-image: linear-gradient(to top, #000 55%, transparent);
 }
