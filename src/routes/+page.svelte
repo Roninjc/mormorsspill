@@ -29,7 +29,7 @@
 		<div class="runes" aria-hidden="true">ᛗ · ᛟ · ᚱ · ᛗ · ᛟ · ᚱ</div>
 
 		<div class="actions">
-			<a class="btn btn-primary" href="/login">Entrar</a>
+			<a class="btn btn-primary" href="/login">Empezar</a>
 		</div>
 	</div>
 </div>
@@ -248,11 +248,13 @@
 		z-index: 1;
 		min-height: 100dvh;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		/* Neutralize the .app wrapper padding (incl. safe-area insets) so the gate centers */
 		margin: calc(-16px - env(safe-area-inset-top)) -16px calc(-104px - env(safe-area-inset-bottom));
-		padding: 40px 22px;
+		/* Extra top padding drops the gate to ~the lower golden-ratio line (~60% down). */
+		padding: calc(40px + 20dvh) 22px 40px;
 	}
 
 	.gate {

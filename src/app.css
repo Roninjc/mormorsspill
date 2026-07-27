@@ -12,6 +12,8 @@
 	--gold-soft: #f0c974;
 	--good: #46b98a;
 	--special: #a78bfa; /* special rounds accent */
+	--ice: #5ec8e0; /* primary CTA */
+	--ice-deep: #2f9fc4;
 
 	--radius: 12px;
 	--radius-lg: 18px;
@@ -242,12 +244,52 @@ select:focus {
 	cursor: not-allowed;
 }
 .btn-primary {
-	background: linear-gradient(180deg, var(--blood-bright), var(--blood));
-	border-color: transparent;
-	color: #fff;
+	position: relative;
+	overflow: hidden;
+	background:
+		linear-gradient(120deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.08) 22%, transparent 44%),
+		linear-gradient(180deg, rgba(255, 255, 255, 0.32), transparent 32%),
+		linear-gradient(180deg, rgba(150, 226, 244, 0.48), rgba(66, 176, 212, 0.48));
+	-webkit-backdrop-filter: blur(7px) saturate(155%);
+	backdrop-filter: blur(7px) saturate(155%);
+	color: #f3fbff;
 	font-size: 1.1rem;
 	letter-spacing: 0.06em;
-	box-shadow: 0 6px 18px rgba(193, 53, 46, 0.35);
+	box-shadow:
+		0 8px 22px rgba(47, 159, 196, 0.32),
+		inset 0 1px 0 rgba(255, 255, 255, 0.85),
+		inset 0 -14px 24px rgba(120, 205, 235, 0.22);
+	transition: transform 0.18s ease, box-shadow 0.25s ease, filter 0.25s ease,
+		border-color 0.25s ease;
+}
+.btn-primary::after {
+	content: '';
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	width: 45%;
+	background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.55) 50%, transparent);
+	transform: translateX(-220%) skewX(-18deg);
+	pointer-events: none;
+}
+@media (hover: hover) {
+	.btn-primary:hover {
+		transform: translateY(-2px);
+		border-color: rgba(190, 235, 255, 0.7);
+		box-shadow:
+			0 14px 34px rgba(47, 159, 196, 0.5),
+			inset 0 1px 0 rgba(255, 255, 255, 0.95),
+			inset 0 -14px 26px rgba(150, 222, 245, 0.35);
+		filter: saturate(1.12) brightness(1.06);
+	}
+	.btn-primary:hover::after {
+		transform: translateX(320%) skewX(-18deg);
+		transition: transform 0.85s cubic-bezier(0.22, 0.61, 0.36, 1);
+	}
+	.btn-primary:active {
+		transform: translateY(0);
+	}
 }
 .btn-gold {
 	background: linear-gradient(180deg, var(--gold-soft), var(--gold));

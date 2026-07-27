@@ -8,8 +8,7 @@
 </div>
 
 <div class="center" style="margin: 6px 0 18px">
-	<h1 style="font-size: 1.9rem">Entrar</h1>
-	<p class="muted small">Accede con tu nombre y tu PIN</p>
+	<h1 style="font-size: 1.9rem">Iniciar sesión</h1>
 </div>
 
 <form method="POST" class="card">
